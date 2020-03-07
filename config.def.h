@@ -64,14 +64,14 @@ static const char *surfcmd[]  = { "surf", NULL };
 #include <X11/XF86keysym.h>
 static Key keys[] = {
 
-	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("dmo_appmenu.sh") },
-	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("dmo_appmenu.sh sys") },
+	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh") },
+	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
 
 	{1,  0,  XF86XK_AudioLowerVolume, cyclelayout , {.i = +1 } },
 	{2,  0,  XF86XK_AudioLowerVolume, zoom, {0} },
 	{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
 
-	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("svkbd-layered-toggle") },
+	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_keyboard.sh") },
 	{2,  0,  XF86XK_PowerOff, spawn, { .v = termcmd } },
 	{3,  0,  XF86XK_PowerOff, spawn, { .v = surfcmd } }
 
