@@ -20,6 +20,7 @@
  *
  * To understand everything else, start reading main().
  */
+#include <time.h>
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
@@ -100,6 +101,7 @@ struct Client {
 };
 
 typedef struct {
+	unsigned int npresses;
 	unsigned int mod;
 	KeySym keysym;
 	void (*func)(const Arg *);
@@ -177,6 +179,7 @@ static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
 static void incnmaster(const Arg *arg);
 static void keypress(XEvent *e);
+static void keyrelease(XEvent *e);
 static void killclient(const Arg *arg);
 static void manage(Window w, XWindowAttributes *wa);
 static void mappingnotify(XEvent *e);
@@ -256,12 +259,14 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[Expose] = expose,
 	[FocusIn] = focusin,
 	[KeyPress] = keypress,
+	[KeyRelease] = keyrelease,
 	[MappingNotify] = mappingnotify,
 	[MapRequest] = maprequest,
 	[MotionNotify] = motionnotify,
 	[PropertyNotify] = propertynotify,
 	[UnmapNotify] = unmapnotify
 };
+static Atom timeratom;
 static Atom wmatom[WMLast], netatom[NetLast];
 static int running = 1;
 static Cur *cursor[CurLast];
@@ -270,6 +275,12 @@ static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;
 static Window root, wmcheckwin;
+
+#define KEYPRESS_MS_THRESHOLD 200
+#define KEYHOLD_MS_THRESHOLD 700
+static KeySym lastkeysym = NULL;
+static unsigned int lastkeypresses = 0;
+static unsigned int lastkeyreleased = 0;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -518,6 +529,7 @@ clientmessage(XEvent *e)
 	XClientMessageEvent *cme = &e->xclient;
 	Client *c = wintoclient(cme->window);
 
+	if (cme->message_type == timeratom) { keypresstimerdonesync(cme->data.s[0]); return; }
 	if (!c)
 		return;
 	if (cme->message_type == netatom[NetWMState]) {
@@ -1002,6 +1014,71 @@ isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
 }
 #endif /* XINERAMA */
 
+
+void keypresstimerdonesync(int keyindex) {
+  int i;
+  Key * maxkeypresskey = NULL;
+  
+  if (
+      keyindex < 0 &&
+  		keys[-1 * keyindex].keysym == lastkeysym &&
+  		keys[-1 * keyindex].npresses == lastkeypresses
+  ) {
+    // Key hold - find keybinding w/ max npresses and run that fn
+  	for (i = 0; i < LENGTH(keys); i++) {
+  	  if (
+  	    keys[-1 * keyindex].keysym == keys[i].keysym &&
+  	    (maxkeypresskey == NULL || keys[i].npresses > maxkeypresskey->npresses)
+  	  ) {
+  	    maxkeypresskey = &keys[i];
+  	  }
+  	}
+  	lastkeysym = NULL;
+		if (maxkeypresskey && maxkeypresskey->func) maxkeypresskey->func(&(maxkeypresskey->arg));
+  } else if (
+    // Key press
+	  keys[keyindex].keysym == lastkeysym &&
+		keys[keyindex].npresses == lastkeypresses
+	) {
+	  if (lastkeyreleased) {
+  		lastkeysym = NULL;
+  		if (keys[keyindex].func) keys[keyindex].func(&(keys[keyindex].arg));
+	  } else {
+			keypresstimerdispatch(KEYHOLD_MS_THRESHOLD - KEYPRESS_MS_THRESHOLD, -1 * keyindex);
+	  }
+	}
+}
+
+void keypresstimerdone(union sigval timer_data)
+{
+	XEvent ev;
+	memset(&ev, 0, sizeof ev);
+	ev.xclient.type = ClientMessage;
+	ev.xclient.window = root;
+	ev.xclient.message_type = timeratom;
+	ev.xclient.format = 16;
+	ev.xclient.data.s[0] = ((short) timer_data.sival_int);
+	XSendEvent(dpy, root, False, SubstructureRedirectMask, &ev);
+	XSync(dpy, False);
+}
+
+void keypresstimerdispatch(int msduration, int data)
+{
+	struct sigevent timer_signal_event;
+	timer_t timer;
+	struct itimerspec timer_period;
+	timer_signal_event.sigev_notify = SIGEV_THREAD;
+	timer_signal_event.sigev_notify_function = keypresstimerdone;
+	timer_signal_event.sigev_value.sival_int = data;
+	timer_signal_event.sigev_notify_attributes = NULL;
+	timer_create(CLOCK_MONOTONIC, &timer_signal_event, &timer);
+	timer_period.it_value.tv_sec = 0;
+	timer_period.it_value.tv_nsec = msduration * 1000000;
+	timer_period.it_interval.tv_sec = 0;
+	timer_period.it_interval.tv_nsec =  0;
+	timer_settime(timer, 0, &timer_period, NULL);
+}
+
 void
 keypress(XEvent *e)
 {
@@ -1014,8 +1091,31 @@ keypress(XEvent *e)
 	for (i = 0; i < LENGTH(keys); i++)
 		if (keysym == keys[i].keysym
 		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
-		&& keys[i].func)
-			keys[i].func(&(keys[i].arg));
+		&& keys[i].func) {
+			// E.g. normal functionality case - npresses 0
+			if (keys[i].npresses == 0) { keys[i].func(&(keys[i].arg)); continue; }
+
+			if (lastkeysym != keys[i].keysym) {
+				lastkeysym = keys[i].keysym;
+				lastkeypresses = 0;
+		  }
+		  if (lastkeypresses + 1 == keys[i].npresses) {
+				lastkeypresses++;
+				lastkeyreleased = 0;
+				keypresstimerdispatch(KEYPRESS_MS_THRESHOLD, i);
+				break;
+			}
+		}
+}
+
+void
+keyrelease(XEvent *e)
+{
+	KeySym keysym;
+	XKeyEvent *ev;
+	ev = &e->xkey;
+	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
+  if (lastkeysym == keysym) { lastkeyreleased = 1; }
 }
 
 void
@@ -1569,6 +1669,7 @@ setup(void)
 	updategeom();
 	/* init atoms */
 	utf8string = XInternAtom(dpy, "UTF8_STRING", False);
+	timeratom = XInternAtom(dpy, "TIMER", False);
 	wmatom[WMProtocols] = XInternAtom(dpy, "WM_PROTOCOLS", False);
 	wmatom[WMDelete] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
 	wmatom[WMState] = XInternAtom(dpy, "WM_STATE", False);
@@ -2147,6 +2248,7 @@ zoom(const Arg *arg)
 int
 main(int argc, char *argv[])
 {
+	XInitThreads();
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION);
 	else if (argc != 1)
