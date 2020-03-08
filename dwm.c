@@ -1146,6 +1146,7 @@ keyrelease(XEvent *e)
 void
 killclient(const Arg *arg)
 {
+	system("sh -c 'sxmo_blinkled.sh red'");
 	if (!selmon->sel)
 		return;
 	if (!sendevent(selmon->sel, wmatom[WMDelete])) {

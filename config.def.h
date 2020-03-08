@@ -58,8 +58,6 @@ static const Layout layouts[] = {
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
-static const char *termcmd[]  = { "st", NULL };
-static const char *surfcmd[]  = { "surf", NULL };
 
 #include <X11/XF86keysym.h>
 static Key keys[] = {
@@ -72,8 +70,8 @@ static Key keys[] = {
 	{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
 
 	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_keyboard.sh") },
-	{2,  0,  XF86XK_PowerOff, spawn, { .v = termcmd } },
-	{3,  0,  XF86XK_PowerOff, spawn, { .v = surfcmd } }
+	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & st") },
+	{3,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & surf") }
 
 	/*
 	{0,  MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
