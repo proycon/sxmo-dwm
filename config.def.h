@@ -68,7 +68,7 @@ static Key keys[] = {
 	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
 
 	{1,  0,  XF86XK_AudioLowerVolume, cyclelayout , {.i = +1 } },
-	{2,  0,  XF86XK_AudioLowerVolume, zoom, {0} },
+	{2,  0,  XF86XK_AudioLowerVolume, rotatestack, {.i = +1} },
 	{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
 
 	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_keyboard.sh") },
