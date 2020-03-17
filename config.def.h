@@ -63,6 +63,9 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 #include <X11/XF86keysym.h>
 static Key keys[] = {
 
+  // TODO: hold functionality doesnt work if keybinding starts at 0 index
+	{0,  MODKEY,                       XK_0,      view,           {.ui = ~0 } },
+
 	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh") },
 	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
 	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_lowpowermode.sh") },
