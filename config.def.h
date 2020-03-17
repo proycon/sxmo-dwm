@@ -65,14 +65,15 @@ static Key keys[] = {
 
 	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh") },
 	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
+	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_lowpowermode.sh") },
 
 	{1,  0,  XF86XK_AudioLowerVolume, cyclelayout , {.i = +1 } },
 	{2,  0,  XF86XK_AudioLowerVolume, rotatestack, {.i = +1} },
 	{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
 
 	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_keyboard.sh") },
-	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & st") },
-	{3,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & surf") }
+	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $TERM") },
+	{3,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $BROWSER") }
 
 	/*
 	{0,  MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
