@@ -248,6 +248,7 @@ static int xerrorstart(Display *dpy, XErrorEvent *ee);
 static void zoom(const Arg *arg);
 static void bstack(Monitor *m);
 static void bstackhoriz(Monitor *m);
+static void tagtoright(const Arg *arg);
 
 static pid_t getparentprocess(pid_t p);
 static int isdescprocess(pid_t p, pid_t c);
@@ -2581,5 +2582,18 @@ bstackhoriz(Monitor *m) {
 			if (th != m->wh)
 				ty += HEIGHT(c);
 		}
+	}
+}
+
+void
+tagtoright(const Arg *arg) {
+	if(
+	  selmon->sel != NULL
+  	&& (selmon->tagset[selmon->seltags] & TAGMASK)
+  	&& (selmon->tagset[selmon->seltags] & (TAGMASK >> 1))
+  ) {
+		selmon->sel->tags <<= 1;
+		focus(NULL);
+		arrange(selmon);
 	}
 }
