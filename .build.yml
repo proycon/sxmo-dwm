@@ -2,7 +2,7 @@
 # Don't manually edit this file
 ---
 image: alpine/3.11
-shell: true
+shell: false
 packages:
 - coreutils
 - procps
