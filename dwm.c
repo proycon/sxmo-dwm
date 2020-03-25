@@ -1617,7 +1617,7 @@ rotatestack(const Arg *arg)
 	if (c) {
 		i = 0;
 		for (c = selmon->clients; c; c = c->next) {
-			if (!ISVISIBLE(c) || (c->isfloating) || c->isdock) continue;
+			if (!ISVISIBLE(c) || (c->isfloating)) continue;
 			if (i == selidx) { focus(c); break; }
 		}
 		arrange(selmon);
