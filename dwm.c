@@ -95,7 +95,7 @@ struct Client {
 	int basew, baseh, incw, inch, maxw, maxh, minw, minh;
 	int bw, oldbw;
 	unsigned int tags;
-	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isterminal, noswallow;
+	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isterminal, noswallow, iskbd;
 	pid_t pid;
 	Client *next;
 	Client *snext;
@@ -147,6 +147,7 @@ typedef struct {
 	int isterminal;
 	int noswallow;
 	int monitor;
+	int iskbd;
 } Rule;
 
 /* function declarations */
@@ -332,6 +333,7 @@ applyrules(Client *c)
 		{
 			c->isterminal = r->isterminal;
 			c->isfloating = r->isfloating;
+			c->iskbd = r->iskbd;
 			c->tags |= r->tags;
 			for (m = mons; m && m->num != r->monitor; m = m->next);
 			if (m)
@@ -805,9 +807,11 @@ drawbar(Monitor *m)
 	}
 
 	for (c = m->clients; c; c = c->next) {
-		occ |= c->tags;
-		if (c->isurgent)
-			urg |= c->tags;
+		if (!c->iskbd) {
+			occ |= c->tags;
+			if (c->isurgent)
+				urg |= c->tags;
+		}
 	}
 	x = 0;
 	for (i = 0; i < LENGTH(tags); i++) {
@@ -906,6 +910,8 @@ focus(Client *c)
 	if (selmon->sel && selmon->sel != c)
 		unfocus(selmon->sel, 0);
 	if (c) {
+		if (c->iskbd)
+			return;
 		if (c->mon != selmon)
 			selmon = c->mon;
 		if (c->isurgent)
@@ -955,16 +961,16 @@ focusstack(const Arg *arg)
 	if (!selmon->sel)
 		return;
 	if (arg->i > 0) {
-		for (c = selmon->sel->next; c && !ISVISIBLE(c); c = c->next);
+		for (c = selmon->sel->next; c && (!ISVISIBLE(c) || c->iskbd); c = c->next);
 		if (!c)
-			for (c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
+			for (c = selmon->clients; c && (!ISVISIBLE(c) || c->iskbd); c = c->next);
 	} else {
 		for (i = selmon->clients; i != selmon->sel; i = i->next)
-			if (ISVISIBLE(i))
+			if (ISVISIBLE(i) && !i->iskbd)
 				c = i;
 		if (!c)
 			for (; i; i = i->next)
-				if (ISVISIBLE(i))
+				if (ISVISIBLE(i) && !i->iskbd)
 					c = i;
 	}
 	if (c) {
@@ -1248,15 +1254,23 @@ manage(Window w, XWindowAttributes *wa)
 		term = termforwin(c);
 	}
 
-	if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
-		c->x = c->mon->mx + c->mon->mw - WIDTH(c);
-	if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
-		c->y = c->mon->my + c->mon->mh - HEIGHT(c);
-	c->x = MAX(c->x, c->mon->mx);
-	/* only fix client y-offset, if the client center might cover the bar */
-	c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
+	if (c->iskbd) {
+		//c->y = c->mon->my + c->mon->mh - c->h;
+		//c->mon->mh = HEIGHT(c);
+		//updatebarpos(selmon);
+		//XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
+		//arrange(selmon);
+	} else {
+		if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
+			c->x = c->mon->mx + c->mon->mw - WIDTH(c);
+		if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
+			c->y = c->mon->my + c->mon->mh - HEIGHT(c);
+		c->x = MAX(c->x, c->mon->mx);
+		/* only fix client y-offset, if the client center might cover the bar */
+		c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
 		&& (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
-	c->bw = borderpx;
+	}
+  c->bw = borderpx;
 
 	wc.border_width = c->bw;
 	XConfigureWindow(dpy, w, CWBorderWidth, &wc);
@@ -1318,7 +1332,7 @@ monocle(Monitor *m)
 	Client *c;
 
 	for (c = m->clients; c; c = c->next)
-		if (ISVISIBLE(c))
+		if (ISVISIBLE(c) && !c->iskbd)
 			n++;
 	if (n > 0) /* override layout symbol */
 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%d]", n);
@@ -1479,6 +1493,8 @@ recttomon(int x, int y, int w, int h)
 void
 resize(Client *c, int x, int y, int w, int h, int interact)
 {
+	if (c && c->iskbd)
+		return;
 	if (applysizehints(c, &x, &y, &w, &h, interact))
 		resizeclient(c, x, y, w, h);
 }
@@ -2022,6 +2038,9 @@ unmanage(Client *c, int destroyed)
 {
 	Monitor *m = c->mon;
 	XWindowChanges wc;
+
+	if (c->iskbd)
+		updategeom();
 
 	if (c->swallowing) {
 		unswallow(c);
