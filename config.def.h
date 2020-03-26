@@ -63,70 +63,29 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 
 #include <X11/XF86keysym.h>
 static Key keys[] = {
-
   // TODO: hold functionality doesnt work if keybinding starts at 0 index
 	{0,  MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 
 	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh") },
 	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
-	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_lowpowermode.sh") },
+	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_screenlock") },
 
 	{1,  0,  XF86XK_AudioLowerVolume, cyclelayout , {.i = +1 } },
 	{2,  0,  XF86XK_AudioLowerVolume, rotatestack, {.i = +1} },
 	{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
 
-	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_keyboard.sh") },
+	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("pkill -9 svkbd-sxmo || svkbd-sxmo") },
 	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $TERM") },
 	{3,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $BROWSER") }
-
-	/*
-	{0,  MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{0,  MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{0,  MODKEY,                       XK_b,      togglebar,      {0} },
-	{0,  MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
-	{0,  MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-	{0,  MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-	{0,  MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
-	{0,  MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
-	{0,  MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{0,  MODKEY,                       XK_Return, zoom,           {0} },
-	{0,  MODKEY,                       XK_Tab,    view,           {0} },
-	{0,  MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
-	{0,  MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-	{0,  MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
-	{0,  MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
-	{0,  MODKEY|ControlMask,		XK_comma,  cyclelayout,    {.i = -1 } },
-	{0,  MODKEY|ControlMask,           XK_period, cyclelayout,    {.i = +1 } },
-	{0,  MODKEY,                       XK_space,  setlayout,      {0} },
-	{0,  MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
-	{0,  MODKEY,                       XK_0,      view,           {.ui = ~0 } },
-	{0,  MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
-	{0,  MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
-	{0,  MODKEY,                       XK_period, focusmon,       {.i = +1 } },
-	{0,  MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
-	{0,  MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	{0,  MODKEY|ShiftMask,             XK_q,      quit,           {0} },
-	*/
 };
 
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
 	/* click                event mask      button          function        argument */
-	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
-	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
-	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	/*{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },*/
-	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
-	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 	{ ClkTagBar,            0,              Button1,        view,           {0} },
-	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
-	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
-	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+	{ ClkLtSymbol,          0,              Button1,        cyclelayout,    {.i = +1} },
+	{ ClkWinTitle,          0,              Button1,        tagtoright,     {0} },
+	{ ClkStatusText,        0,              Button1,        spawn,          SHCMD("sxmo_appmenu.sh control") },
 };
 

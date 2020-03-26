@@ -906,12 +906,10 @@ void
 focus(Client *c)
 {
 	if (!c || !ISVISIBLE(c))
-		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
+		for (c = selmon->stack; c && (!ISVISIBLE(c) || c->iskbd) ; c = c->snext);
 	if (selmon->sel && selmon->sel != c)
 		unfocus(selmon->sel, 0);
 	if (c) {
-		if (c->iskbd)
-			return;
 		if (c->mon != selmon)
 			selmon = c->mon;
 		if (c->isurgent)
@@ -1244,7 +1242,6 @@ manage(Window w, XWindowAttributes *wa)
 	c->h = c->oldh = wa->height;
 	c->oldbw = wa->border_width;
 
-	updatetitle(c);
 	if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
 		c->mon = t->mon;
 		c->tags = t->tags;
@@ -1255,12 +1252,13 @@ manage(Window w, XWindowAttributes *wa)
 	}
 
 	if (c->iskbd) {
-		//c->y = c->mon->my + c->mon->mh - c->h;
-		//c->mon->mh = HEIGHT(c);
-		//updatebarpos(selmon);
-		//XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
-		//arrange(selmon);
+		c->y = c->mon->my + c->mon->mh - c->h;
+		c->mon->mh = c->mon->mh - HEIGHT(c);
+		updatebarpos(selmon);
+		XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
+		arrange(selmon);
 	} else {
+  	updatetitle(c);
 		if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
 			c->x = c->mon->mx + c->mon->mw - WIDTH(c);
 		if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
@@ -1268,7 +1266,7 @@ manage(Window w, XWindowAttributes *wa)
 		c->x = MAX(c->x, c->mon->mx);
 		/* only fix client y-offset, if the client center might cover the bar */
 		c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
-		&& (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
+			&& (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
 	}
   c->bw = borderpx;
 
@@ -1291,9 +1289,11 @@ manage(Window w, XWindowAttributes *wa)
 		(unsigned char *) &(c->win), 1);
 	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
 	setclientstate(c, NormalState);
-	if (c->mon == selmon)
-		unfocus(selmon->sel, 0);
-	c->mon->sel = c;
+	if (!c->iskbd) {
+		if (c->mon == selmon)
+			unfocus(selmon->sel, 0);
+		c->mon->sel = c;
+	}
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
 	if (term)
@@ -1461,7 +1461,7 @@ propertynotify(XEvent *e)
 			break;
 		}
 		if (ev->atom == XA_WM_NAME || ev->atom == netatom[NetWMName]) {
-			updatetitle(c);
+			//updatetitle(c);
 			if (c == c->mon->sel)
 				drawbar(c->mon);
 		}
@@ -2606,13 +2606,16 @@ bstackhoriz(Monitor *m) {
 
 void
 tagtoright(const Arg *arg) {
-	if(
-	  selmon->sel != NULL
-  	&& (selmon->tagset[selmon->seltags] & TAGMASK)
+  if (selmon->sel == NULL) return;
+
+	if (
+  	(selmon->tagset[selmon->seltags] & TAGMASK)
   	&& (selmon->tagset[selmon->seltags] & (TAGMASK >> 1))
   ) {
 		selmon->sel->tags <<= 1;
-		focus(NULL);
-		arrange(selmon);
+	} else {
+		selmon->sel->tags = 1 << 0;
 	}
+	focus(NULL);
+	arrange(selmon);
 }
