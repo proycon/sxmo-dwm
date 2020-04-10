@@ -66,6 +66,11 @@ static Key keys[] = {
   // TODO: hold functionality doesnt work if keybinding starts at 0 index
 	{0,  MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 
+	{0,  MODKEY|ShiftMask,  XK_h, shiftview, {.i = -1} },
+	{0,  MODKEY|ShiftMask,  XK_l, tagtoright, {.i = +1} },
+	{0,  MODKEY,  XK_h, tagtoright, {0} },
+	{0,  MODKEY,  XK_l, tagtoright, {0} },
+
 	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh") },
 	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
 	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_screenlock") },
@@ -77,6 +82,8 @@ static Key keys[] = {
 	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("pkill -9 svkbd-sxmo || svkbd-sxmo") },
 	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $TERM") },
 	{3,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $BROWSER") }
+
+
 };
 
 /* button definitions */
