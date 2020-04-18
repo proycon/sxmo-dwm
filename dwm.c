@@ -296,9 +296,9 @@ static Window root, wmcheckwin;
 
 #define KEYPRESS_MS_THRESHOLD 200
 #define KEYHOLD_MS_THRESHOLD 700
-static KeySym lastkeysym = NULL;
-static unsigned int lastkeypresses = 0;
-static unsigned int lastkeyreleased = 0;
+static int multikeypendingindex = -1;
+timer_t multikeypendingtimer;
+static int multikeyup = 1;
 
 static xcb_connection_t *xcon;
 
@@ -1105,37 +1105,20 @@ isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
 #endif /* XINERAMA */
 
 
-void keypresstimerdonesync(int keyindex) {
-  int i;
-  Key * maxkeypresskey = NULL;
-  
-  if (
-      keyindex < 0 &&
-  		keys[-1 * keyindex].keysym == lastkeysym &&
-  		keys[-1 * keyindex].npresses == lastkeypresses
-  ) {
-    // Key hold - find keybinding w/ max npresses and run that fn
-  	for (i = 0; i < LENGTH(keys); i++) {
-  	  if (
-  	    keys[-1 * keyindex].keysym == keys[i].keysym &&
-  	    (maxkeypresskey == NULL || keys[i].npresses > maxkeypresskey->npresses)
-  	  ) {
-  	    maxkeypresskey = &keys[i];
-  	  }
-  	}
-  	lastkeysym = NULL;
-		if (maxkeypresskey && maxkeypresskey->func) maxkeypresskey->func(&(maxkeypresskey->arg));
-  } else if (
-    // Key press
-	  keys[keyindex].keysym == lastkeysym &&
-		keys[keyindex].npresses == lastkeypresses
-	) {
-	  if (lastkeyreleased) {
-  		lastkeysym = NULL;
-  		if (keys[keyindex].func) keys[keyindex].func(&(keys[keyindex].arg));
-	  } else {
-			keypresstimerdispatch(KEYHOLD_MS_THRESHOLD - KEYPRESS_MS_THRESHOLD, -1 * keyindex);
-	  }
+void keypresstimerdonesync(int idx) {
+	int i, maxidx;
+
+	if (keys[idx].npresses == 1 && !multikeyup) {
+		// Dispatch hold key
+		maxidx = -1;
+		for (i = 0; i < LENGTH(keys); i++)
+			if (keys[i].keysym == keys[idx].keysym) maxidx = i;
+		if (maxidx != -1)
+			keypresstimerdispatch(KEYHOLD_MS_THRESHOLD - KEYPRESS_MS_THRESHOLD, maxidx);
+	} else if (keys[idx].func) {
+		// Run the actual keys' fn
+		keys[idx].func(&(keys[idx].arg));
+		multikeypendingindex = -1;
 	}
 }
 
@@ -1155,57 +1138,58 @@ void keypresstimerdone(union sigval timer_data)
 void keypresstimerdispatch(int msduration, int data)
 {
 	struct sigevent timer_signal_event;
-	timer_t timer;
 	struct itimerspec timer_period;
+	// Clear out the old timer if any set,and dispatch new timer
+	timer_delete(multikeypendingtimer);
 	timer_signal_event.sigev_notify = SIGEV_THREAD;
 	timer_signal_event.sigev_notify_function = keypresstimerdone;
 	timer_signal_event.sigev_value.sival_int = data;
 	timer_signal_event.sigev_notify_attributes = NULL;
-	timer_create(CLOCK_MONOTONIC, &timer_signal_event, &timer);
+	timer_create(CLOCK_MONOTONIC, &timer_signal_event, &multikeypendingtimer);
 	timer_period.it_value.tv_sec = 0;
 	timer_period.it_value.tv_nsec = msduration * 1000000;
 	timer_period.it_interval.tv_sec = 0;
 	timer_period.it_interval.tv_nsec =  0;
-	timer_settime(timer, 0, &timer_period, NULL);
+	timer_settime(multikeypendingtimer, 0, &timer_period, NULL);
 }
 
 void
 keypress(XEvent *e)
 {
-	unsigned int i;
+	unsigned int i, j;
 	KeySym keysym;
 	XKeyEvent *ev;
 
 	ev = &e->xkey;
 	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
-	for (i = 0; i < LENGTH(keys); i++)
+	for (i = 0; i < LENGTH(keys); i++) {
 		if (keysym == keys[i].keysym
 		&& CLEANMASK(keys[i].mod) == CLEANMASK(ev->state)
 		&& keys[i].func) {
-			// E.g. normal functionality case - npresses 0
-			if (keys[i].npresses == 0) { keys[i].func(&(keys[i].arg)); continue; }
-
-			if (lastkeysym != keys[i].keysym) {
-				lastkeysym = keys[i].keysym;
-				lastkeypresses = 0;
+			// E.g. Normal functionality case - npresses 0
+			if (keys[i].npresses == 0) {
+			  keys[i].func(&(keys[i].arg));
+			  break;
 		  }
-		  if (lastkeypresses + 1 == keys[i].npresses) {
-				lastkeypresses++;
-				lastkeyreleased = 0;
-				keypresstimerdispatch(KEYPRESS_MS_THRESHOLD, i);
-				break;
-			}
+
+			// Multikey functionality - find index of key, set global, & dispatch
+			if (
+			  (multikeypendingindex == -1 && multikeyup && keys[i].npresses == 1) ||
+			  (multikeypendingindex != -1 && keys[multikeypendingindex].npresses + 1 == keys[i].npresses)
+			) {
+			  multikeyup = 0;
+			  multikeypendingindex = i;
+  			keypresstimerdispatch(KEYPRESS_MS_THRESHOLD, i);
+  			break;
+  		}
 		}
+	}
 }
 
 void
 keyrelease(XEvent *e)
 {
-	KeySym keysym;
-	XKeyEvent *ev;
-	ev = &e->xkey;
-	keysym = XKeycodeToKeysym(dpy, (KeyCode)ev->keycode, 0);
-  if (lastkeysym == keysym) { lastkeyreleased = 1; }
+	multikeyup = 1;
 }
 
 void
@@ -2527,6 +2511,7 @@ main(int argc, char *argv[])
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("dwm: cannot open display");
+  XkbSetDetectableAutoRepeat(dpy, True, NULL);
 	if (!(xcon = XGetXCBConnection(dpy)))
 		die("dwm: cannot get xcb connection\n");
 	checkotherwm();
