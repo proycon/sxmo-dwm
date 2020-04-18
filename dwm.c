@@ -249,7 +249,8 @@ static int xerrorstart(Display *dpy, XErrorEvent *ee);
 static void zoom(const Arg *arg);
 static void bstack(Monitor *m);
 static void bstackhoriz(Monitor *m);
-static void tagtoright(const Arg *arg);
+static void clienttagpush(const Arg *arg);
+static void shiftview(const Arg *arg);
 
 static pid_t getparentprocess(pid_t p);
 static int isdescprocess(pid_t p, pid_t c);
@@ -2590,17 +2591,25 @@ bstackhoriz(Monitor *m) {
 }
 
 void
-tagtoright(const Arg *arg) {
+clienttagpush(const Arg *arg) {
   if (selmon->sel == NULL) return;
 
-	if (
-  	(selmon->tagset[selmon->seltags] & TAGMASK)
-  	&& (selmon->tagset[selmon->seltags] & (TAGMASK >> 1))
-  ) {
-		selmon->sel->tags <<= 1;
+	if (arg->i > 0) {
+		if (
+	  	(selmon->tagset[selmon->seltags] & TAGMASK)
+	  	&& (selmon->tagset[selmon->seltags] & (TAGMASK >> 1))
+	  ) {
+			selmon->sel->tags <<= 1;
+		}
 	} else {
-		selmon->sel->tags = 1 << 0;
+		if (
+	  	(selmon->tagset[selmon->seltags] & TAGMASK)
+	  	&& (selmon->tagset[selmon->seltags] & (TAGMASK << 1))
+	  ) {
+			selmon->sel->tags >>= 1;
+		}
 	}
+
 	focus(NULL);
 	arrange(selmon);
 }
@@ -2609,11 +2618,11 @@ void
 shiftview(const Arg *arg) {
 	Arg shifted;
 
-	if(arg->i > 0) // left circular shift
+	if(arg->i > 0)
 		shifted.ui = (selmon->tagset[selmon->seltags] << arg->i)
 		   | (selmon->tagset[selmon->seltags] >> (LENGTH(tags) - arg->i));
 
-	else // right circular shift
+	else
 		shifted.ui = selmon->tagset[selmon->seltags] >> (- arg->i)
 		   | selmon->tagset[selmon->seltags] << (LENGTH(tags) + arg->i);
 

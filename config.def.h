@@ -67,9 +67,9 @@ static Key keys[] = {
 	{0,  MODKEY,                       XK_0,      view,           {.ui = ~0 } },
 
 	{0,  MODKEY|ShiftMask,  XK_h, shiftview, {.i = -1} },
-	{0,  MODKEY|ShiftMask,  XK_l, tagtoright, {.i = +1} },
-	{0,  MODKEY,  XK_h, tagtoright, {0} },
-	{0,  MODKEY,  XK_l, tagtoright, {0} },
+	{0,  MODKEY|ShiftMask,  XK_l, shiftview, {.i = +1} },
+	{0,  MODKEY,  XK_h, clienttagpush, {.i = -1} },
+	{0,  MODKEY,  XK_l, clienttagpush, {.i = +1} },
 
 	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh") },
 	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
@@ -92,7 +92,6 @@ static Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkTagBar,            0,              Button1,        view,           {0} },
 	{ ClkLtSymbol,          0,              Button1,        cyclelayout,    {.i = +1} },
-	{ ClkWinTitle,          0,              Button1,        tagtoright,     {0} },
 	{ ClkStatusText,        0,              Button1,        spawn,          SHCMD("sxmo_appmenu.sh control") },
 };
 
