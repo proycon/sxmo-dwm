@@ -49,9 +49,12 @@ static void (*bartabfloatfns[])(Monitor *) = { NULL /* , customlayoutfn */ };
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* first entry is default */
-	{ "|_|",      bstack },
-	{ "[ ]",      monocle },
 	{ NULL,       NULL },
+	{ "[ ]",      monocle },
+	{ "DD",       deckdouble},
+	{ "D",        deck},
+
+	{ "|_|",      bstack },
 };
 
 /* key definitions */
@@ -94,6 +97,8 @@ static Key keys[] = {
 	{ 0, MODKEY,                    XK_b,      togglebar,      {0} },
 	{ 0, MODKEY,                    XK_j,      focusstack,     {.i = +1 } },
 	{ 0, MODKEY,                    XK_k,      focusstack,     {.i = -1 } },
+	{ 0, MODKEY|ShiftMask,          XK_j,      rotatestack,    {.i = -1} },
+	{ 0, MODKEY|ShiftMask,          XK_k,      rotatestack,    {.i = +1} },
 	{ 0, MODKEY,                    XK_i,      incnmaster,     {.i = +1 } },
 	{ 0, MODKEY,                    XK_o,      incnmaster,     {.i = -1 } },
 	{ 0, MODKEY,                    XK_h,      setmfact,       {.f = -0.05} },
@@ -101,17 +106,32 @@ static Key keys[] = {
 	{ 0, MODKEY,                    XK_Return, zoom,           {0} },
 	{ 0, MODKEY,                    XK_Tab,    view,           {0} },
 	{ 0, MODKEY|ShiftMask,          XK_c,      killclient,     {0} },
-	{ 0, MODKEY,                    XK_t,      setlayout,      {.v = &layouts[0]} },
-	{ 0, MODKEY,                    XK_f,      setlayout,      {.v = &layouts[1]} },
+
+  /* float */
+	{ 0, MODKEY,                    XK_n,      setlayout,      {.v = &layouts[1]} },
+	/* monocle */
 	{ 0, MODKEY,                    XK_m,      setlayout,      {.v = &layouts[2]} },
+	/* deck double */
+	{ 0, MODKEY,                    XK_comma,  setlayout,      {.v = &layouts[3]} },
+	/* deck */
+	{ 0, MODKEY,                    XK_period, setlayout,      {.v = &layouts[4]} },
+	/* tile */
+	{ 0, MODKEY,                    XK_slash,  setlayout,      {.v = &layouts[0]} },
+	{ 0, MODKEY|ShiftMask,          XK_slash,  setlayout,      {.v = &layouts[0]} },
+
+
 	{ 0, MODKEY,                    XK_space,  setlayout,      {0} },
 	{ 0, MODKEY|ShiftMask,          XK_space,  togglefloating, {0} },
 	{ 0, MODKEY,                    XK_0,      view,           {.ui = ~0 } },
 	{ 0, MODKEY|ShiftMask,          XK_0,      tag,            {.ui = ~0 } },
+
+  /*
 	{ 0, MODKEY,                    XK_comma,  focusmon,       {.i = -1 } },
 	{ 0, MODKEY,                    XK_period, focusmon,       {.i = +1 } },
 	{ 0, MODKEY|ShiftMask,          XK_comma,  tagmon,         {.i = -1 } },
 	{ 0, MODKEY|ShiftMask,          XK_period, tagmon,         {.i = +1 } },
+	*/
+
 	TAGKEYS(                        XK_1,                      0)
 	TAGKEYS(                        XK_2,                      1)
 	TAGKEYS(                        XK_3,                      2)
