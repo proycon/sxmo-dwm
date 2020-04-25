@@ -229,6 +229,7 @@ static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
+static void unfloatvisible(const Arg *arg);
 static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
@@ -2799,5 +2800,20 @@ shiftview(const Arg *arg) {
 		   | selmon->tagset[selmon->seltags] << (LENGTH(tags) + arg->i);
 
 	view(&shifted);
+}
+
+void
+unfloatvisible(const Arg *arg)
+{
+    Client *c;
+
+    for (c = selmon->clients; c; c = c->next)
+        if (ISVISIBLE(c) && c->isfloating)
+            c->isfloating = c->isfixed;
+
+    if (arg && arg->v)
+        setlayout(arg);
+    else
+        arrange(selmon);
 }
 
