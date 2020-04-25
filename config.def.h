@@ -150,7 +150,6 @@ static Button buttons[] = {
 	{ ClkStatusText,        0,              Button1,        spawn,          SHCMD("sxmo_appmenu.sh control") },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 };
 
