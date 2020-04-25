@@ -1089,7 +1089,7 @@ grabkeys(void)
 void
 incnmaster(const Arg *arg)
 {
-	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
+	selmon->nmaster = MAX(selmon->nmaster + arg->i, 1);
 	arrange(selmon);
 }
 
@@ -1800,7 +1800,10 @@ setup(void)
 	sh = DisplayHeight(dpy, screen);
 	root = RootWindow(dpy, screen);
 	drw = drw_create(dpy, screen, root, sw, sh);
-	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
+
+	int fontoffset = sw > 1000 ? 1 : 0;
+	fprintf(stderr, "WIDTH %d %d\n", sw, fontoffset);
+	if (!drw_fontset_create(drw, fonts + fontoffset, LENGTH(fonts) - fontoffset))
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
 	bh = drw->fonts->h + 2;
