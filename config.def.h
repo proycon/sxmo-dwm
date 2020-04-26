@@ -103,7 +103,9 @@ static Key keys[] = {
 	{0,  MODKEY,  XK_r, clienttagpush, {.i = +1} },
 
 	/* PBP */
-	{ 0, MODKEY,                    XK_p,      spawn,          {.v = dmenucmd } },
+	{ 0, MODKEY,                    XK_p,      spawn,          SHCMD("dmenu_run -c -fn Terminus-14 -l 20") },
+	{ 0, MODKEY,                    XK_d,      spawn,          SHCMD("dmenu_run -c -fn Terminus-13 -l 20") },
+
 	{ 0, MODKEY|ShiftMask,          XK_Return, spawn,          SHCMD("st") },
 	{ 0, MODKEY,                    XK_b,      togglebar,      {0} },
 	{ 0, MODKEY,                    XK_j,      focusstack,     {.i = +1 } },
