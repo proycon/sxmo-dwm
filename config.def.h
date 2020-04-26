@@ -46,10 +46,18 @@ static const int resizehints = 0;    /* 1 means respect size hints in tiled resi
 static void (*bartabmonfns[])(Monitor *) = { monocle /* , customlayoutfn */ };
 static void (*bartabfloatfns[])(Monitor *) = { NULL /* , customlayoutfn */ };
 
+static const Layout ppcyclelayouts[] = {
+	/* symbol     arrange function */
+	{ "[]=",      tile },    /* first entry is default */
+	{ "|_|",      bstack },
+	{ "[ ]",      monocle },
+};
+
+
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* first entry is default */
-	{ NULL,       NULL },
+	{ "F",        NULL },
 	{ "[ ]",      monocle },
 	{ "DD",       deckdouble},
 	{ "D",        deck},
@@ -118,7 +126,8 @@ static Key keys[] = {
 	{ 0, MODKEY,                    XK_period, setlayout,      {.v = &layouts[4]} },
 	/* tile */
 	{ 0, MODKEY,                    XK_slash,  setlayout,      {.v = &layouts[0]} },
-	{ 0, MODKEY|ShiftMask,          XK_slash,  setlayout,      {.v = &layouts[0]} },
+	/* bstack */
+	{ 0, MODKEY|ShiftMask,          XK_slash,  setlayout,      {.v = &layouts[5]} },
 
 	{ 0, MODKEY,                       XK_f,  togglefloating, {0} },
 	{ 0, MODKEY|ShiftMask,             XK_f,  unfloatvisible, {0} },
