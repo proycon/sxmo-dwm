@@ -23,6 +23,9 @@ static const char *colors[][3]      = {
 	[SchemeTabInactive]  = { col_gray1, col_gray3,  col_gray1 }
 };
 
+/* 1 means attach after the currently active window */
+static const int attachbelow = 1;    
+
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4" };
 
