@@ -7,7 +7,7 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = {
   "monospace:size=15", /* PP default start index */
-  "monospace:size=11", /* PB default start index */
+  "monospace:size=10", /* PB default start index */
 };
 static const char dmenufont[]       = "monospace:size=11";
 static const char col_gray1[]       = "#222222";
@@ -133,7 +133,7 @@ static Key keys[] = {
 	{ 2, MODKEY,                       XK_t, transferall,    {0} },
 
   /* float */
-	{ 0, MODKEY,                    XK_n,      setlayout,      {.v = &layouts[1]} },
+	{ 0, MODKEY,                    XK_space,  setlayout,      {0} },
 	/* monocle */
 	{ 0, MODKEY,                    XK_m,      setlayout,      {.v = &layouts[2]} },
 	/* deck double */
