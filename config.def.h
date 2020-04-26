@@ -122,6 +122,7 @@ static Key keys[] = {
 	{ 0, MODKEY|ShiftMask,          XK_q,      killclient,     {0} },
 
 	{ 0, MODKEY,                       XK_semicolon, switchcol,    {0} },
+	{ 0, MODKEY,                       XK_t, transfer,    {0} },
 
   /* float */
 	{ 0, MODKEY,                    XK_n,      setlayout,      {.v = &layouts[1]} },
