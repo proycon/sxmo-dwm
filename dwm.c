@@ -887,18 +887,13 @@ createmon(void)
 
 void
 cyclelayout(const Arg *arg) {
-	Layout *l;
-	for(l = (Layout *)ppcyclelayouts; l != selmon->lt[selmon->sellt]; l++);
+  int i;
+  Arg a;
+
+	for(i = 0; i < LENGTH(ppcyclelayouts) && &ppcyclelayouts[i] != selmon->lt[selmon->sellt]; i++);
 	if(arg->i > 0) {
-		if(l->symbol && (l + 1)->symbol)
-			setlayout(&((Arg) { .v = (l + 1) }));
-		else
-			setlayout(&((Arg) { .v = ppcyclelayouts }));
-	} else {
-		if(l != ppcyclelayouts && (l - 1)->symbol)
-			setlayout(&((Arg) { .v = (l - 1) }));
-		else
-			setlayout(&((Arg) { .v = &ppcyclelayouts[LENGTH(ppcyclelayouts) - 2] }));
+		a.v = &ppcyclelayouts[i + 1 < LENGTH(ppcyclelayouts) ? i + 1 : 0];
+		setlayout(&a);
 	}
 }
 
