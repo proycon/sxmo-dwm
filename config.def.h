@@ -114,6 +114,9 @@ static Key keys[] = {
 	{ 0, MODKEY|ShiftMask,          XK_j,      pushdown,    {.i = +1 } },
 	{ 0, MODKEY|ShiftMask,          XK_k,      pushup,    {.i = -1 } },
 
+	{ 0, MODKEY|ShiftMask,          XK_Down,      spawn,    SHCMD("sxmo_vol.sh down") },
+	{ 0, MODKEY|ShiftMask,          XK_Up,      spawn,    SHCMD("sxmo_vol.sh up") },
+
 	{ 0, MODKEY,                    XK_i,      incnmaster,     {.i = +1 } },
 	{ 0, MODKEY,                    XK_o,      incnmaster,     {.i = -1 } },
 	{ 0, MODKEY,                    XK_h,      setmfact,       {.f = -0.05} },
