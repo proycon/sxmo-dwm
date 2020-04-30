@@ -111,10 +111,8 @@ static Key keys[] = {
 	{ 0, MODKEY,                    XK_j,      focusstack,     {.i = +1 } },
 	{ 0, MODKEY,                    XK_k,      focusstack,     {.i = -1 } },
 
-	{ 1, MODKEY|ShiftMask,          XK_j,      inplacerotate,  {.i = +1} },
-	{ 1, MODKEY|ShiftMask,          XK_k,      inplacerotate,  {.i = -1} },
-	{ 2, MODKEY|ShiftMask,          XK_j,      inplacerotate,  {.i = +2} },
-	{ 2, MODKEY|ShiftMask,          XK_k,      inplacerotate,  {.i = -2} },
+	{ 0, MODKEY|ShiftMask,          XK_j,      pushdown,    {.i = +1 } },
+	{ 0, MODKEY|ShiftMask,          XK_k,      pushup,    {.i = -1 } },
 
 	{ 0, MODKEY,                    XK_i,      incnmaster,     {.i = +1 } },
 	{ 0, MODKEY,                    XK_o,      incnmaster,     {.i = -1 } },
@@ -131,6 +129,7 @@ static Key keys[] = {
 
 	{ 1, MODKEY,                       XK_t, transfer,    {0} },
 	{ 2, MODKEY,                       XK_t, transferall,    {0} },
+
 
   /* float */
 	{ 0, MODKEY,                    XK_space,  setlayout,      {0} },
