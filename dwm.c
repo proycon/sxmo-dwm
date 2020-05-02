@@ -1623,7 +1623,7 @@ propertynotify(XEvent *e)
 			break;
 		}
 		if (ev->atom == XA_WM_NAME || ev->atom == netatom[NetWMName]) {
-			//updatetitle(c);
+			updatetitle(c);
 			if (c == c->mon->sel)
 				drawbar(c->mon);
 		}
