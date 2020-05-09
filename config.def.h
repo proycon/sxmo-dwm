@@ -114,6 +114,8 @@ static Key keys[] = {
 	{ 0, MODKEY|ShiftMask,          XK_j,      pushdown,    {.i = +1 } },
 	{ 0, MODKEY|ShiftMask,          XK_k,      pushup,    {.i = -1 } },
 
+	{ 0, 0,                         XF86XK_MonBrightnessUp,  spawn, SHCMD("sxmo_brightness.sh up") },
+	{ 0, 0,                         XF86XK_MonBrightnessDown,  spawn, SHCMD("sxmo_brightness.sh down") },
 	{ 0, MODKEY|ShiftMask,          XK_Down,      spawn,    SHCMD("sxmo_vol.sh down") },
 	{ 0, MODKEY|ShiftMask,          XK_Up,      spawn,    SHCMD("sxmo_vol.sh up") },
 
