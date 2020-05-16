@@ -133,8 +133,8 @@ static Key keys[] = {
 
 	{ 0, MODKEY,                       XK_semicolon, switchcol,    {0} },
 
-	{ 1, MODKEY,                       XK_t, transfer,    {0} },
-	{ 2, MODKEY,                       XK_t, transferall,    {0} },
+	{ 1, MODKEY,                       XK_s, transfer,    {0} },
+	{ 2, MODKEY,                       XK_s, transferall,    {0} },
 
 
   /* float */
