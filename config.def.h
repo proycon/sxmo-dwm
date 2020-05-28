@@ -89,7 +89,7 @@ static Key keys[] = {
   /* PP */
 	{1,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh") },
 	{2,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_appmenu.sh sys") },
-	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("sxmo_screenlock") },
+	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("pkill -9 lisgd; sxmo_screenlock; lisgd &") },
 	{1,  0,  XF86XK_AudioLowerVolume, cyclelayout , {.i = +1 } },
 	{2,  0,  XF86XK_AudioLowerVolume, inplacerotate, {.i = +2} },
 	{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
