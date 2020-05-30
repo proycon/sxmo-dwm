@@ -176,8 +176,6 @@ static void detachstack(Client *c);
 static Monitor *dirtomon(int dir);
 static void drawbar(Monitor *m);
 static void drawbars(void);
-static void enqueue(Client *c);
-static void enqueuestack(Client *c);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
 static void focus(Client *c);
@@ -1019,28 +1017,6 @@ drawbars(void)
 }
 
 void
-enqueue(Client *c)
-{
-	Client *l;
-	for (l = c->mon->clients; l && l->next; l = l->next);
-	if (l) {
-		l->next = c;
-		c->next = NULL;
-	}
-}
-
-void
-enqueuestack(Client *c)
-{
-	Client *l;
-	for (l = c->mon->stack; l && l->snext; l = l->snext);
-	if (l) {
-		l->snext = c;
-		c->snext = NULL;
-	}
-}
-
-void
 enternotify(XEvent *e)
 {
 	Client *c;
@@ -1327,7 +1303,7 @@ void keypresstimerdispatch(int msduration, int data)
 void
 keypress(XEvent *e)
 {
-	unsigned int i, j;
+	unsigned int i;
 	KeySym keysym;
 	XKeyEvent *ev;
 
