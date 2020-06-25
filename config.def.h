@@ -92,7 +92,9 @@ static Key keys[] = {
 	{3,  0,  XF86XK_AudioRaiseVolume, spawn, SHCMD("pkill -9 lisgd; sxmo_screenlock; lisgd &") },
 	{1,  0,  XF86XK_AudioLowerVolume, cyclelayout , {.i = +1 } },
 	{2,  0,  XF86XK_AudioLowerVolume, inplacerotate, {.i = +2} },
-	{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
+	{3,  0,  XF86XK_AudioLowerVolume, spawn, SHCMD("sxmo_blinkled.sh red & xdotool windowkill $(xdotool getactivewindow)") },
+	//{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
+
 	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("pkill -9 svkbd-sxmo || svkbd-sxmo") },
 	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $TERM") },
 	{3,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh green & $BROWSER") },
