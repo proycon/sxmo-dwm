@@ -24,7 +24,7 @@ static const char *colors[][3]      = {
 };
 
 /* 1 means attach after the currently active window */
-static const int attachbelow = 1;    
+static const int attachbelow = 1;
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4" };
@@ -32,7 +32,7 @@ static const char *tags[] = { "1", "2", "3", "4" };
 static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   isterminal noswallow monitor */
 	{ "st",       NULL,       NULL,       0,            0,           1,         1,        -1,  0},
-	{ "svkbd",    NULL,       NULL,       TAGMASK,      1,           1,         0,        -1,  1}, 
+	{ "svkbd",    NULL,       NULL,       TAGMASK,      1,           1,         0,        -1,  1},
 };
 
 /* layout(s) */
@@ -179,8 +179,7 @@ static Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkTagBar,            0,              Button1,        view,           {0} },
 	{ ClkLtSymbol,          0,              Button1,        cyclelayout,    {.i = +1} },
-	{ ClkStatusText,        0,              Button1,        spawn,		SHCMD("sxmo_appmenu.sh")},
-	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
+	{ ClkClientWin,         Mod4Mask,       Button1,        movemouse,      {0} },
+	{ ClkClientWin,         Mod4Mask,       Button3,        resizemouse,    {0} },
 };
 
