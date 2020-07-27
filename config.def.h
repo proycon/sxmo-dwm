@@ -179,7 +179,7 @@ static Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkTagBar,            0,              Button1,        view,           {0} },
 	{ ClkLtSymbol,          0,              Button1,        cyclelayout,    {.i = +1} },
-	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
+	{ ClkStatusText,        0,              Button1,        spawn,		SHCMD("sxmo_appmenu.sh")},
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
 };
