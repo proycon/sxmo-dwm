@@ -976,7 +976,7 @@ drawbar(Monitor *m)
 		drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
 
 		for (c = m->clients; c; c = c->next) {
-			if (c->tags & (1 << i)) {
+			if (c->tags & (1 << i) && !c->iskbd) {
 				drw_rect(drw, x, 1 + (indn * 2), selmon->sel == c ? 6 : 1, 1, 1, urg & 1 << i);
 				indn++;
 			}
