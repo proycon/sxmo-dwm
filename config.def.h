@@ -96,7 +96,7 @@ static Key keys[] = {
 	//{3,  0,  XF86XK_AudioLowerVolume, killclient, {0} },
 
 	{1,  0,  XF86XK_PowerOff, spawn, SHCMD("pkill -9 $KEYBOARD || $KEYBOARD") },
-	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh blue & $TERM") },
+	{2,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh blue & $TERMCMD -e /bin/sh -l") },
 	{3,  0,  XF86XK_PowerOff, spawn, SHCMD("sxmo_blinkled.sh blue & $BROWSER") },
 
 	/* Used by scripts via xdotool */
